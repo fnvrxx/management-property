@@ -31,8 +31,8 @@ class GenerateMonthlyInvoices extends Command
 
         foreach ($activeLeases as $lease) {
             // Hitung jumlah bulan sejak mulai kontrak
-            $startDate = Carbon::parse($lease->tanggal_mulai);
-            $endDate = Carbon::parse($lease->tanggal_akhir);
+            $startDate = Carbon::instance($lease->tanggal_mulai);
+            $endDate = Carbon::instance($lease->tanggal_akhir);
             $currentDate = now();
 
             // Pastikan tidak melebihi akhir kontrak
@@ -65,10 +65,7 @@ class GenerateMonthlyInvoices extends Command
             // Tambah tagihan lainnya (jika ada)
             $tagihanLain = 0;
             if ($lease->tagihan_lainnya) {
-                $items = json_decode($lease->tagihan_lainnya, true);
-                if (is_array($items)) {
-                    $tagihanLain = collect($items)->sum('jumlah');
-                }
+                $tagihanLain = collect($lease->tagihan_lainnya)->sum('jumlah');
             }
 
             $total = $harga + $ppn + $ppb + $tagihanLain;

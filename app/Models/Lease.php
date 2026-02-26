@@ -21,6 +21,12 @@ class Lease extends Model
         'tagihan_lainnya',
         'catatan',
     ];
+
+    protected $casts = [
+        'tagihan_lainnya' => 'array',
+        'tanggal_mulai'   => 'date',
+        'tanggal_akhir'   => 'date',
+    ];
     public function tenant()
     {
         return $this->belongsTo(Tenant::class);

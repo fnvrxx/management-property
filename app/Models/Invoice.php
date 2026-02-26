@@ -30,9 +30,29 @@ class Invoice extends Model
         return $this->belongsTo(Lease::class);
     }
 
-    // Hitung sisa hari ke jatuh tempo
-    public function getSisaHariAttribute()
+    public function paymentHistories()
     {
-        return now()->diffInDays($this->tanggal_jatuh_tempo, false);
+        return $this->hasMany(PaymentHistory::class);
+    }
+
+    // Total yang sudah dibayar via riwayat pembayaran
+    public function getTotalTerbayarAttribute(): float
+    {
+        return (float) $this->paymentHistories()->sum('jumlah_bayar');
+    }
+
+    // Sisa yang belum dibayar
+    public function getSisaTagihanAttribute(): float
+    {
+        return max(0, (float) $this->jumlah_tagihan - $this->total_terbayar);
+    }
+
+    // Hitung sisa hari ke jatuh tempo (null jika sudah Lunas)
+    public function getSisaHariAttribute(): ?int
+    {
+        if ($this->status_pembayaran === 'Lunas') {
+            return null;
+        }
+        return (int) today()->diffInDays($this->tanggal_jatuh_tempo, false);
     }
 }

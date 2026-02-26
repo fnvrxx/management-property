@@ -9,22 +9,19 @@ use Filament\Widgets\TableWidget as BaseWidget;
 
 class UpcomingInvoices extends BaseWidget
 {
-    protected static ?string $heading = 'Tagihan Mendekati Jatuh Tempo (7 Hari ke Depan)';
+    protected static ?string $heading = 'Tagihan Mendekati Jatuh Tempo (1 Bulan ke Depan)';
 
     protected int|string|array $columnSpan = 'full';
-
-    // ✅ WAJIB: Method ini menggantikan ->query()
-    public function getTableQuery(): \Illuminate\Database\Eloquent\Builder
-    {
-        return Invoice::with(['lease.tenant', 'lease.property'])
-            ->where('status_pembayaran', 'Belum Bayar')
-            ->whereBetween('tanggal_jatuh_tempo', [now(), now()->addDays(7)])
-            ->orderBy('tanggal_jatuh_tempo', 'asc');
-    }
 
     public function table(Table $table): Table
     {
         return $table
+            ->query(
+                Invoice::with(['lease.tenant', 'lease.property'])
+                    ->where('status_pembayaran', 'Belum Bayar')
+                    ->whereBetween('tanggal_jatuh_tempo', [now(), now()->addMonth()])
+                    ->orderBy('tanggal_jatuh_tempo', 'asc')
+            )
             ->columns([
                 Tables\Columns\TextColumn::make('lease.tenant.nama')
                     ->label('Penyewa')
@@ -44,11 +41,12 @@ class UpcomingInvoices extends BaseWidget
 
                 Tables\Columns\TextColumn::make('sisa_hari')
                     ->label('Sisa Hari')
-                    ->formatStateUsing(fn($record) => $record->sisa_hari . ' hari')
+                    ->formatStateUsing(fn($record) => $record->sisa_hari === null ? '-' : $record->sisa_hari . ' hari')
                     ->color(fn($record) => match (true) {
-                        $record->sisa_hari <= 0 => 'danger',
-                        $record->sisa_hari <= 3 => 'warning',
-                        default => 'gray',
+                        $record->sisa_hari === null => 'gray',
+                        $record->sisa_hari <= 0    => 'danger',
+                        $record->sisa_hari <= 3    => 'warning',
+                        default                    => 'gray',
                     }),
             ])
             ->paginated([5, 10, 20]);

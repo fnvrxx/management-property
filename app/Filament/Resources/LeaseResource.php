@@ -86,25 +86,21 @@ class LeaseResource extends Resource
                     ->suffix('%')
                     ->default(0.00),
 
-                // Tagihan Lainnya (Custom JSON)
+                // Tagihan Lainnya (JSON array via Repeater)
                 Forms\Components\Repeater::make('tagihan_lainnya')
                     ->label('Tagihan Lainnya')
-                    ->relationship('tagihan_lainnya') // ❌ TIDAK BISA LANGSUNG — JSON!
                     ->schema([
-                        Forms\Components\TextInput::make('nama')->required(),
+                        Forms\Components\TextInput::make('nama')
+                            ->label('Nama Tagihan')
+                            ->required(),
                         Forms\Components\TextInput::make('jumlah')
+                            ->label('Jumlah')
                             ->numeric()
                             ->prefix('Rp')
                             ->required(),
                     ])
                     ->columnSpanFull()
-                    ->visible(fn() => false), // ⚠️ Kita nonaktifkan dulu karena JSON
-
-                // Ganti dengan Textarea untuk JSON (sederhana)
-                Forms\Components\Textarea::make('tagihan_lainnya')
-                    ->label('Tagihan Lainnya (JSON)')
-                    ->helperText('Contoh: [{"nama":"Listrik","jumlah":150000}]')
-                    ->json(), // ✅ Ini penting agar Filament tahu ini JSON
+                    ->defaultItems(0),
 
                 Forms\Components\Textarea::make('catatan')
                     ->label('Catatan Kontrak')

@@ -2,16 +2,17 @@
 
 namespace App\Filament\Pages;
 
-use App\Models\Invoice;
+use App\Filament\Widgets\RevenueProjectionWidget;
+use App\Filament\Widgets\UpcomingInvoices;
 use Filament\Pages\Dashboard as BaseDashboard;
-use Filament\Widgets;
 
 class Dashboard extends BaseDashboard
 {
     protected function getHeaderWidgets(): array
     {
         return [
-            UpcomingInvoicesWidget::class,
+            RevenueProjectionWidget::class,
+            UpcomingInvoices::class,
         ];
     }
 }
